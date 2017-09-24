@@ -5,36 +5,82 @@ Your challenge, if you wish to accept it (and we sure hope you will), is to opti
 To get started, check out the repository and inspect the code.
 
 ### Getting started
+Click <a href="https://github.com/udacity/frontend-nanodegree-mobile-portfolio">HERE</a> to download the project.
 
 ####Part 1: Optimize PageSpeed Insights score for index.html
-
-Some useful tips to help you get started:
-
-1. Check out the repository
-1. To inspect the site on your phone, you can run a local server
-
-  ```bash
-  $> cd /path/to/your-project-folder
-  $> python -m SimpleHTTPServer 8080
-  ```
-
-1. Open a browser and visit localhost:8080
-1. Download and install [ngrok](https://ngrok.com/) to the top-level of your project directory to make your local server accessible remotely.
-
-  ``` bash
-  $> cd /path/to/your-project-folder
-  $> ./ngrok http 8080
-  ```
-
-1. Copy the public URL ngrok gives you and try running it through PageSpeed Insights! Optional: [More on integrating ngrok, Grunt and PageSpeed.](http://www.jamescryer.com/2014/06/12/grunt-pagespeed-and-ngrok-locally-testing/)
-
-Profile, optimize, measure... and then lather, rinse, and repeat. Good luck!
+Open the index.html on browser and check the website score on <a href="https://developers.google.com/speed/pagespeed/">Google PageSpeed</a>.
+We will see the scores are low, so let's fix from the feedback.
 
 ####Part 2: Optimize Frames per Second in pizza.html
+Open the views/pizza.html on google developer tool. First we use the timeline to record the function and check the fps.
 
-To optimize views/pizza.html, you will need to modify views/js/main.js until your frames per second rate is 60 fps or higher. You will find instructive comments in main.js. 
+### How to optimize the project
 
-You might find the FPS Counter/HUD Display useful in Chrome developer tools described here: [Chrome Dev Tools tips-and-tricks](https://developer.chrome.com/devtools/docs/tips-and-tricks).
+Part 1: Getting Rid of jank.
+Optimizate views/js/main.js 
+We see some values are not useful in "function updatePositions". so here is what I fixed.
+
+ ``` bash
+function updatePositions() {
+// combine the perormance.mark with "measure_frame_duration", "mark_start_frame", "mark_end_frame"
+window.performance.mark("measure_frame_duration", "mark_start_frame", "mark_end_frame");
+
+  var items = document.querySelectorAll('.mover');
+  var pizzas = items.length;
+  var s = document.body.scrollTop / 1250; //pizza moving when scrolling
+  var phase; //var "phase" for the pizzas moving at background.
+  
+  for (var i = 0; i < items.length; i++) {
+    phase = Math.sin(s + (i % 5));
+    items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
+  }
+  
+}
+ ``` 
+
+Part 2: Reduced quantity of pizzas that run as background.
+ ``` bash
+ // Generates the sliding pizzas when the page loads.
+document.addEventListener('DOMContentLoaded', function() {
+  window.addEventListener('scroll', updatePositions);
+  var cols = 8;
+  var s = 256;
+  for (var i = 0; i < 31; i++) {
+    var elem = document.createElement('img');
+    elem.className = 'mover';
+    elem.src = "images/pizza.png";
+    elem.style.height = "100px";
+    elem.style.width = "73.333px";
+    elem.basicLeft = (i % cols) * s;
+    elem.style.top = (Math.floor(i / cols) * s) + 'px';
+    document.querySelector("#movingPizzas1").appendChild(elem);
+  }
+  updatePositions();
+});
+ ```
+
+ Part 3: Resize pizzas is less than 5 ms using the pizza size slider on the views/pizza.html.
+
+ ``` bash
+  function changePizzaSizes(size) {
+    var i = 0;
+    var dx = determineDx(document.querySelectorAll(".randomPizzaContainer")[i], size);
+    var newwidth = (document.querySelectorAll(".randomPizzaContainer")[i].offsetWidth + dx) + 'px';
+    var all = document.querySelectorAll(".randomPizzaContainer");
+
+    for (var i = 0; i < all.length; i++) {
+      all[i].style.width = newwidth;
+    }
+  }
+  changePizzaSizes(size);
+ ``` 
+
+ Part 4: Fix the index.html to achieves PageSpeed least 90 for mobile and desktop.
+
+* Move the stylesheets to the bottom of index.html and pizza.html.
+* Resize image of pizzeria.jpg. The original size was way to big for website.
+* From <a href="https://developers.google.com/speed/pagespeed/insights/">PageSpeed Insights</a>. We will see the feedback for some of images that need to compress the size. 
+
 
 ### Optimization Tips and Tricks
 * [Optimizing Performance](https://developers.google.com/web/fundamentals/performance/ "web performance")
@@ -48,8 +94,11 @@ You might find the FPS Counter/HUD Display useful in Chrome developer tools desc
 * <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/image-optimization.html">Optimize images</a>
 * <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching.html">HTTP caching</a>
 
+
 ### Customization with Bootstrap
 The portfolio was built on Twitter's <a href="http://getbootstrap.com/">Bootstrap</a> framework. All custom styles are in `dist/css/portfolio.css` in the portfolio repo.
 
 * <a href="http://getbootstrap.com/css/">Bootstrap's CSS Classes</a>
 * <a href="http://getbootstrap.com/components/">Bootstrap's Components</a>
+
+

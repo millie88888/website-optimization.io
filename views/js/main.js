@@ -513,8 +513,6 @@ window.performance.mark("measure_frame_duration", "mark_start_frame", "mark_end_
     phase = Math.sin(s + (i % 5));
     items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
   }
-
-
   
 }
 
@@ -527,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('scroll', updatePositions);
   var cols = 8;
   var s = 256;
-  for (var i = 0; i < 30; i++) {
+  for (var i = 0; i < 31; i++) {
     var elem = document.createElement('img');
     elem.className = 'mover';
     elem.src = "images/pizza.png";
